@@ -30,18 +30,49 @@ app.use(session({
 // Инициализация таблиц
 function initDB() {
     db.serialize(() => {
-        db.run(`
-            CREATE TABLE IF NOT EXISTS users (
-                uid INTEGER PRIMARY KEY AUTOINCREMENT,
-                username TEXT UNIQUE NOT NULL,
-                password TEXT NOT NULL,
-                email TEXT DEFAULT NULL,
-                hwid TEXT DEFAULT NULL,
-                subscription_type TEXT DEFAULT NULL,
-                subscription_expires TEXT DEFAULT NULL,
-                created_at TEXT DEFAULT CURRENT_TIMESTAMP
-            )
-        `);
+        // Удаляем старую таблицу если она существует с неправильной схемой
+        db.run(`DROP TABLE IF EXISTS users_old`);
+        
+        // Пытаемся переименовать существующую таблицу
+        db.run(`ALTER TABLE users RENAME TO users_old`, (err) => {
+            if (err) {
+                // Таблица не существует или уже переименована, создаем новую
+                console.log('Создание новой таблицы users...');
+            }
+            
+            // Создаем новую таблицу с правильной схемой
+            db.run(`
+                CREATE TABLE IF NOT EXISTS users (
+                    uid INTEGER PRIMARY KEY AUTOINCREMENT,
+                    username TEXT UNIQUE NOT NULL,
+                    password TEXT NOT NULL,
+                    email TEXT DEFAULT NULL,
+                    hwid TEXT DEFAULT NULL,
+                    subscription_type TEXT DEFAULT NULL,
+                    subscription_expires TEXT DEFAULT NULL,
+                    created_at TEXT DEFAULT CURRENT_TIMESTAMP
+                )
+            `, (err) => {
+                if (err) {
+                    console.error('Ошибка создания таблицы users:', err);
+                } else {
+                    // Копируем данные из старой таблицы если она существует
+                    db.run(`
+                        INSERT OR IGNORE INTO users (uid, username, password, email, hwid, subscription_type, subscription_expires, created_at)
+                        SELECT uid, username, password, email, hwid, subscription_type, subscription_expires, created_at 
+                        FROM users_old
+                    `, (err) => {
+                        if (err) {
+                            console.log('Старая таблица не найдена или данные уже скопированы');
+                        } else {
+                            console.log('✅ Данные мигрированы из старой таблицы');
+                            // Удаляем старую таблицу
+                            db.run(`DROP TABLE IF EXISTS users_old`);
+                        }
+                    });
+                }
+            });
+        });
         
         db.run(`
             CREATE TABLE IF NOT EXISTS keys (
