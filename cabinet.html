@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<title>Личный кабинет - VodkaClient</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+body {
+    background: #000000;
+    color: #fff;
+    min-height: 100vh;
+}
+
+/* Навигация */
+nav {
+    position: relative;
+    z-index: 100;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 60px;
+    background: rgba(10, 10, 10, 0.9);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid rgba(40, 40, 40, 0.5);
+}
+
+.logo {
+    font-size: 24px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    color: #fff;
+    text-decoration: none;
+}
+
+.btn-back {
+    padding: 10px 24px;
+    background: linear-gradient(135deg, #1a1a1a, #0a0a0a);
+    border: 1px solid rgba(60, 60, 60, 0.5);
+    border-radius: 8px;
+    color: #fff;
+    font-weight: 600;
+    cursor: pointer;
+    text-decoration: none;
+    transition: all 0.3s;
+}
+
+.btn-back:hover {
+    transform: translateY(-2px);
+    background: linear-gradient(135deg, #2a2a2a, #1a1a1a);
+}
+
+/* Контейнер кабинета */
+.cabinet-container {
+    max-width: 900px;
+    margin: 60px auto;
+    padding: 0 30px;
+}
+
+.cabinet-header {
+    text-align: center;
+    margin-bottom: 40px;
+}
+
+.cabinet-header h1 {
+    font-size: 32px;
+    margin-bottom: 10px;
+}
+
+.cabinet-header p {
+    color: rgba(255, 255, 255, 0.6);
+    font-size: 18px;
+}
+
+/* Информационные строки */
+.info-list {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    margin-bottom: 30px;
+}
+
+.info-row {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.info-label {
+    min-width: 220px;
+    padding: 12px 20px;
+    background: linear-gradient(135deg, #2196F3, #1976D2);
+    border-radius: 8px;
+    color: #fff;
+    font-size: 14px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.info-value {
+    flex: 1;
+    padding: 12px 20px;
+    background: rgba(30, 30, 30, 0.9);
+    border: 1px solid rgba(60, 60, 60, 0.5);
+    border-radius: 8px;
+    color: #fff;
+    font-size: 14px;
+}
+
+.info-value input {
+    width: 100%;
+    background: transparent;
+    border: none;
+    color: #fff;
+    font-size: 14px;
+    outline: none;
+}
+
+.action-btn {
+    padding: 10px 20px;
+    background: linear-gradient(135deg, #2196F3, #1976D2);
+    border: none;
+    border-radius: 8px;
+    color: #fff;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s;
+    white-space: nowrap;
+}
+
+.action-btn:hover {
+    transform: translateY(-2px);
+    background: linear-gradient(135deg, #42A5F5, #2196F3);
+}
+
+/* Кнопки действий внизу */
+.bottom-actions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 15px;
+    margin-top: 30px;
+    flex-wrap: wrap;
+}
+
+.left-actions {
+    display: flex;
+    gap: 15px;
+    flex-wrap: wrap;
+}
+
+.primary-btn {
+    padding: 12px 24px;
+    background: linear-gradient(135deg, #2196F3, #1976D2);
+    border: none;
+    border-radius: 8px;
+    color: #fff;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.primary-btn:hover {
+    transform: translateY(-2px);
+    background: linear-gradient(135deg, #42A5F5, #2196F3);
+}
+
+/* Кнопка выхода */
+.logout-btn {
+    padding: 12px 30px;
+    background: linear-gradient(135deg, #2196F3, #1976D2);
+    border: none;
+    border-radius: 8px;
+    color: #fff;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.logout-btn:hover {
+    transform: translateY(-2px);
+    background: linear-gradient(135deg, #42A5F5, #2196F3);
+}
+
+/* Загрузка */
+.loading {
+    text-align: center;
+    padding: 100px 20px;
+    font-size: 24px;
+    color: rgba(255, 255, 255, 0.6);
+}
+</style>
+</head>
+
+<body>
+
+<!-- Навигация -->
+<nav>
+    <a href="/" class="logo">VodkaClient</a>
+    <div style="display: flex; gap: 15px;">
+        <a href="/admin.html" class="btn-back">🔴 Админ панель</a>
+        <a href="/" class="btn-back">← Назад на главную</a>
+    </div>
+</nav>
+
+<!-- Контейнер кабинета -->
+<div class="cabinet-container">
+    <div id="loadingMessage" class="loading">Загрузка...</div>
+    
+    <div id="cabinetContent" style="display: none;">
+        <div class="cabinet-header">
+            <h1>Личный кабинет</h1>
+        </div>
+
+        <!-- Информационные строки -->
+        <div class="info-list">
+            <div class="info-row">
+                <div class="info-label">
+                    <span>👤</span> UID
+                </div>
+                <div class="info-value" id="uidDisplay">-</div>
+            </div>
+
+            <div class="info-row">
+                <div class="info-label">
+                    <span>📝</span> Логин
+                </div>
+                <div class="info-value" id="loginDisplay">-</div>
+            </div>
+
+            <div class="info-row">
+                <div class="info-label">
+                    <span>👥</span> Группа
+                </div>
+                <div class="info-value" id="groupDisplay">Пользователь</div>
+            </div>
+
+            <div class="info-row">
+                <div class="info-label">
+                    <span>📅</span> Дата регистрации
+                </div>
+                <div class="info-value" id="dateDisplay">-</div>
+            </div>
+
+            <div class="info-row">
+                <div class="info-label">
+                    <span>🕐</span> Последний вход
+                </div>
+                <div class="info-value" id="lastLoginDisplay">-</div>
+            </div>
+
+            <div class="info-row">
+                <div class="info-label">
+                    <span>✉️</span> E-mail
+                </div>
+                <div class="info-value" id="emailDisplay">-</div>
+            </div>
+
+            <div class="info-row">
+                <div class="info-label">
+                    <span>💻</span> HWID
+                </div>
+                <div class="info-value" id="hwidDisplay">-</div>
+            </div>
+
+            <div class="info-row">
+                <div class="info-label">
+                    <span>🔑</span> Ключ куплен до
+                </div>
+                <div class="info-value" id="subscriptionDisplay">-</div>
+                <button class="action-btn" id="extendBtn">⏰ Продлить</button>
+            </div>
+
+            <div class="info-row">
+                <div class="info-label">
+                    <span>🔓</span> Активация ключа
+                </div>
+                <div class="info-value">
+                    <input type="text" id="keyInput" placeholder="Введите ключ">
+                </div>
+                <button class="action-btn" id="activateKeyBtn">✅ Активировать</button>
+            </div>
+        </div>
+
+        <!-- Сообщение об активации ключа -->
+        <div id="keyMessage" style="margin-bottom: 20px; padding: 12px; border-radius: 8px; display: none;"></div>
+
+        <!-- Кнопки действий внизу -->
+        <div class="bottom-actions">
+            <div class="left-actions">
+                <button class="primary-btn" id="promoBtn">📋 Мои промокоды</button>
+                <a href="https://t.me/Attack_T1rov" target="_blank" class="primary-btn">🛒 Купить/продлить товары</a>
+                <button class="primary-btn" id="downloadClientBtn">📥 Скачать лаунчер</button>
+                <button class="primary-btn" id="changePasswordBtn">🔐 Сменить пароль</button>
+            </div>
+            <button class="logout-btn" id="logoutBtn">🚪 Выйти</button>
+        </div>
+    </div>
+</div>
+
+<script>
+// Проверка авторизации и загрузка данных
+async function loadUserData() {
+    try {
+        const response = await fetch('/api/check-auth');
+        const data = await response.json();
+        
+        if (!data.authenticated) {
+            window.location.href = '/';
+            return;
+        }
+
+        // Отображение данных
+        document.getElementById('uidDisplay').textContent = data.uid || '-';
+        document.getElementById('loginDisplay').textContent = data.username || '-';
+        document.getElementById('emailDisplay').textContent = data.email || 'Не указан';
+        
+        // HWID - проверяем все возможные варианты
+        const hwid = data.hwid || data.HWID || null;
+        document.getElementById('hwidDisplay').textContent = hwid || 'Не привязан';
+        
+        // Форматирование даты регистрации
+        if (data.created_at) {
+            const date = new Date(data.created_at);
+            document.getElementById('dateDisplay').textContent = date.toLocaleDateString('ru-RU', {
+                day: '2-digit',
+                month: '2-digit',
+                year: 'numeric'
+            }) + ' ' + date.toLocaleTimeString('ru-RU', {
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+        }
+
+        // Последний вход (используем текущее время как заглушку)
+        const now = new Date();
+        document.getElementById('lastLoginDisplay').textContent = now.toLocaleDateString('ru-RU', {
+            day: '2-digit',
+            month: '2-digit',
+            year: 'numeric'
+        }) + ' ' + now.toLocaleTimeString('ru-RU', {
+            hour: '2-digit',
+            minute: '2-digit'
+        });
+
+        // Обновление статуса подписки
+        if (data.subscription_active && data.subscription_expires) {
+            const expiresDate = new Date(data.subscription_expires);
+            document.getElementById('subscriptionDisplay').textContent = expiresDate.toLocaleDateString('ru-RU', {
+                day: '2-digit',
+                month: '2-digit',
+                year: 'numeric'
+            }) + ' ' + expiresDate.toLocaleTimeString('ru-RU', {
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+        } else {
+            document.getElementById('subscriptionDisplay').textContent = 'Не активна';
+        }
+
+        // Показать контент
+        document.getElementById('loadingMessage').style.display = 'none';
+        document.getElementById('cabinetContent').style.display = 'block';
+        
+    } catch (error) {
+        console.error('Ошибка загрузки данных:', error);
+        window.location.href = '/';
+    }
+}
+
+// Продление подписки
+document.getElementById('extendBtn').addEventListener('click', () => {
+    window.open('https://t.me/Attack_T1rov', '_blank');
+});
+
+// Активация ключа
+document.getElementById('activateKeyBtn').addEventListener('click', async () => {
+    const keyCode = document.getElementById('keyInput').value.trim();
+    const messageDiv = document.getElementById('keyMessage');
+    
+    if (!keyCode) {
+        messageDiv.style.display = 'block';
+        messageDiv.style.background = 'rgba(255, 50, 50, 0.2)';
+        messageDiv.style.border = '1px solid rgba(255, 50, 50, 0.5)';
+        messageDiv.style.color = '#ff5555';
+        messageDiv.textContent = 'Введите ключ активации';
+        return;
+    }
+    
+    try {
+        const response = await fetch('/api/activate-key', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ key_code: keyCode })
+        });
+        
+        const data = await response.json();
+        
+        messageDiv.style.display = 'block';
+        
+        if (data.success) {
+            messageDiv.style.background = 'rgba(50, 255, 50, 0.2)';
+            messageDiv.style.border = '1px solid rgba(50, 255, 50, 0.5)';
+            messageDiv.style.color = '#55ff55';
+            messageDiv.textContent = data.message;
+            document.getElementById('keyInput').value = '';
+            
+            setTimeout(() => {
+                loadUserData();
+            }, 1000);
+        } else {
+            messageDiv.style.background = 'rgba(255, 50, 50, 0.2)';
+            messageDiv.style.border = '1px solid rgba(255, 50, 50, 0.5)';
+            messageDiv.style.color = '#ff5555';
+            messageDiv.textContent = data.message;
+        }
+    } catch (error) {
+        messageDiv.style.display = 'block';
+        messageDiv.style.background = 'rgba(255, 50, 50, 0.2)';
+        messageDiv.style.border = '1px solid rgba(255, 50, 50, 0.5)';
+        messageDiv.style.color = '#ff5555';
+        messageDiv.textContent = 'Ошибка соединения';
+    }
+});
+
+// Мои промокоды
+document.getElementById('promoBtn').addEventListener('click', () => {
+    alert('Функция "Мои промокоды" в разработке');
+});
+
+// Скачивание клиента
+document.getElementById('downloadClientBtn').addEventListener('click', () => {
+    const loaderUrl = 'https://www.dropbox.com/scl/fi/2zbuk1s0opsmjl21zrsd3/VodkaClient.exe?rlkey=vt6dzy7evnbxr8rosnidyyaio&st=caeou3b8&dl=1';
+    window.open(loaderUrl, '_blank');
+});
+
+// Смена пароля
+document.getElementById('changePasswordBtn').addEventListener('click', () => {
+    alert('Функция "Сменить пароль" в разработке');
+});
+
+// Выход
+document.getElementById('logoutBtn').addEventListener('click', async () => {
+    try {
+        await fetch('/api/logout', { method: 'POST' });
+        window.location.href = '/';
+    } catch (error) {
+        console.error('Ошибка выхода');
+    }
+});
+
+// Загрузка при открытии страницы
+loadUserData();
+</script>
+
+</body>
+</html>
